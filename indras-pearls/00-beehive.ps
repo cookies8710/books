@@ -1,68 +1,75 @@
-% todo u, v, w should not apply vector addition, but define vectors which should be handled by operations
-% todo cont. then w won't be needed at all
+/sqrt3 {3 sqrt} def
 
-/h {3 sqrt} def
-
-/hexagon % draws hexagon with center tx, ty, with radius a
+% draws hexagon with center tx, ty, with radius a
+/hexagon 
 { 
 	/a exch def
-	/ty exch def
-	/tx exch def
+	/t exch def
+
+	/tx {t 0 get} def
+	/ty {t 1 get} def
 
 	tx ty translate
 	newpath
 	0 a moveto
-	a h 2 div mul a 2 div lineto
-	a h 2 div mul a 2 div neg lineto
+	a sqrt3 2 div mul a 2 div lineto
+	a sqrt3 2 div mul a 2 div neg lineto
 	0 a neg lineto
-	a h 2 div mul neg a 2 div neg lineto
-	a h 2 div mul neg a 2 div lineto
+	a sqrt3 2 div mul neg a 2 div neg lineto
+	a sqrt3 2 div mul neg a 2 div lineto
 	0 a lineto
 	stroke
 	tx neg ty neg translate
 } def
 
 
-% u -> 0 deg vector; tx ty a -> tx' ty a
-/u {
-	/a exch def
-	/ty exch def
-	/tx exch def
-
-	% tx' = tx + sqrt(3) * a
-	tx h a mul add ty a
-} def
-% v -> 60 deg vector; tx ty a -> tx' ty' a
-/v {
-	/a exch def
-	/ty exch def
-	/tx exch def
-
-	% tx' = tx + sqrt(3) / 2 * a
-	% ty' = ty + 3 / 2 * a
-	tx h a 2 div mul add ty 1.5 a mul add a
-} def
-% w -> 90 deg vector; tx ty a -> tx ty' a
-/w {
-	/a exch def
-	/ty exch def
-	/tx exch def
-
-	tx ty a 3 mul add a
-} def
-
 % todo nx, ny: 700, 600 should be taken from page size
-/a 5 def % hexagon's circle radius
+%
+% hexagon's circle radius
+/a 19 def 
 /nx {700 a 2 mul div} def
-/ny {600 a 2 mul div} def
+/ny {1200 a 2 mul div} def
+
+% u -> 0 deg vector
+/u {
+	/pa exch def
+	/x {pa sqrt3 mul} def
+	[x 0]
+} def
+
+% v -> 60 deg vector
+/v {
+	/pa exch def
+	/x {pa sqrt3 2 div mul} def
+	/y {3 pa 2 div mul} def
+	[x y]
+} def
+
+% vec1 vec2 -> vec1 + vec2
+/add_vec { 
+	/b exch def
+	/aaa exch def
+	/xs {aaa 0 get b 0 get add} def
+	/ys {aaa 1 get b 1 get add} def
+	[xs ys]
+} def
+
+% vec k -> k * vec
+/mul_vec { 
+	/k exch def
+	/vec exch def
+	/xs {k vec 0 get mul} def
+	/ys {k vec 1 get mul} def
+	[xs ys]
+} def
 
 0 1 ny {
-  /i exch def
-   0 1 nx { 
-	/n exch def
-	0 0 a i {w} repeat n {u} repeat  hexagon
-	0 0 a i {w} repeat v n {u} repeat  hexagon
-       } for
+	/dy exch def
+	0 1 nx {
+		/dx exch def
+		/dx2 {dx dy 2 div floor sub} def % need to account for v's shift to right
+		a u dx2 mul_vec a v dy mul_vec add_vec a hexagon
+	} for
 } for
 
 showpage
